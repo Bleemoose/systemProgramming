@@ -1,87 +1,156 @@
 import threading
-import time
 import queue
+import time
+
+global_bacc_A, global_bacc_B = 100_000, 100_000
+transferTypes = ["5", "10", "20", "40"]
 
 
-bacc_A, bacc_B = 100_000, 100_000
+class Account:
+    account_bacc_A, account_bacc_B = 100_000, 100_000
+
+
+
+def myThread(queue, bacc_A, bacc_B, uselock, useGlobals):
+    while not queue.empty():
+
+        item = queue.get()
+        t = time.localtime()
+        current_time = time.strftime("%H:%M:%S", t)
+        print("Thread :" + threading.current_thread().name + " starting with transfer type: " + str(item) + " at :"+ current_time)
+        if (uselock):
+            lock.acquire()
+        if item is None:
+            break
+        if item == "5":
+            transfer5(bacc_A, bacc_B, uselock, useGlobals)
+        elif item == "10":
+            transfer10(bacc_A, bacc_B, uselock, useGlobals)
+        elif item == "20":
+            transfer20(bacc_A, bacc_B, uselock, useGlobals)
+        elif item == "40":
+            transfer40(bacc_A, bacc_B, uselock, useGlobals)
+        else:
+            print("error thread: " + threading.current_thread().name + " stopping:" + str(item))
+
+
+def transfer5(bacc_A, bacc_B, useLock, useGlobals):
+    if (useGlobals):
+        global global_bacc_A,global_bacc_B
+        for i in range(100000):
+            global_bacc_A -= 5
+            global_bacc_B += 5
+    else:
+        for i in range(100000):
+            bacc_A -= 5
+            bacc_B += 5
+    if (useLock):
+        lock.release()
+
+
+def transfer10(bacc_A, bacc_B, useLock, useGlobals):
+    if (useGlobals):
+        global global_bacc_A, global_bacc_B
+        for i in range(50000):
+            global_bacc_B -= 10
+            global_bacc_A += 10
+    else:
+        for i in range(50000):
+            bacc_B -= 10
+            bacc_A += 10
+    if (useLock):
+        lock.release()
+
+
+def transfer20(bacc_A, bacc_B, useLock, useGlobals):
+    if (useGlobals):
+        global global_bacc_A, global_bacc_B
+        for i in range(100000):
+            global_bacc_A -= 20
+            global_bacc_B += 20
+    else:
+        for i in range(100000):
+            bacc_A -= 20
+            bacc_B += 20
+    if (useLock):
+     lock.release()
+
+
+def transfer40(bacc_A, bacc_B, useLock, useGlobals):
+    if (useGlobals):
+        global global_bacc_A, global_bacc_B
+        for i in range(50000):
+            global_bacc_B -= 40
+            global_bacc_A += 40
+    else:
+        for i in range(50000):
+            bacc_B -= 40
+            bacc_A += 40
+    if (useLock):
+        lock.release()
+
 
 lock = threading.Lock()
-def transfer5():
-    global bacc_A, bacc_B,lock
-    print("I am transfer 5")
-
-    for i in range(100000):
-        lock.acquire()
-        bacc_A -= 5
-        bacc_B +=5
-        lock.release()
 
 
+def runExperimentWithFiFo():
+    global global_bacc_A, global_bacc_B
+    threads = []
+    q = queue.Queue()
+    for i in range(len(transferTypes)):
+        q.put(transferTypes[i])
+
+    for i in range(len(transferTypes)):
+        thread = threading.Thread(target=myThread, args=(q, global_bacc_A, global_bacc_B, False, True),)
+        thread.start()
+        threads.append(thread)
+    for thread in threads:
+        thread.join()
+    print(global_bacc_A, global_bacc_B)
+
+def runExperimentWithLiFo():
+    threads = []
+    q = queue.LifoQueue()
+    for i in range(len(transferTypes)):
+        q.put(transferTypes[i])
+
+    for i in range(len(transferTypes)):
+        thread = threading.Thread(target=myThread, args=(q, global_bacc_A, global_bacc_B, True,True))
+        thread.start()
+        threads.append(thread)
+    for thread in threads:
+        thread.join()
+    print(global_bacc_A, global_bacc_B)
 
 
+def runExperimentWithPriorityQueue():
+    threads = []
+    q = queue.PriorityQueue()
+    for i in range(len(transferTypes)):
+        q.put(transferTypes[i])
 
-def transfer10():
-    global bacc_A, bacc_B,lock
-    print("I am transfer 10")
-
-    for i in range(50000):
-        lock.acquire()
-        bacc_B -= 10
-        bacc_A += 10
-        lock.release()
-
-
-
-
-def transfer20():
-    global bacc_A, bacc_B , lock
-    print("I am transfer 20")
-
-    for i in range(100000):
-        lock.acquire()
-        bacc_A -= 20
-        bacc_B += 20
-        lock.release()
+    for i in range(len(transferTypes)):
+        thread = threading.Thread(target=myThread, args=(q, global_bacc_A, global_bacc_B, True,True))
+        thread.start()
+        threads.append(thread)
+    for thread in threads:
+        thread.join()
+    print(global_bacc_A,global_bacc_B)
 
 
+def classExp():
+    account = Account()
+    threads = []
+    q = queue.Queue()
+    for i in range(len(transferTypes)):
+        q.put(transferTypes[i])
 
-def transfer40():
-    global bacc_A, bacc_B , lock
-    print("I am transfer 40")
-    for i in range(50000):
-        lock.acquire()
-        bacc_B -= 40
-        bacc_A += 40
-        lock.release()
+    for i in range(len(transferTypes)):
+        thread = threading.Thread(target=myThread, args=(q, account.account_bacc_A, account.account_bacc_B, False,False))
+        thread.start()
+        threads.append(thread)
+    print(account.account_bacc_A,account.account_bacc_B)
 
-
-
-def runExperiment():
-
-
-    t5 = threading.Thread(target=transfer5(),args=())
-    t10 = threading.Thread(target=transfer10(), args=())
-    t20 = threading.Thread(target=transfer20(), args=())
-    t40 = threading.Thread(target=transfer40(), args=())
-    t5.start()
-    t10.start()
-    t20.start()
-    t40.start()
-
-
-def runExpirimentWithFiFo():
-    t5 = threading.Thread(target=transfer5(), args=())
-    t10 = threading.Thread(target=transfer10(), args=())
-    t20 = threading.Thread(target=transfer20(), args=())
-    t40 = threading.Thread(target=transfer40(), args=())
-    FiFo = queue.Queue()
-    FiFo.put(t5)
-    FiFo.put(t10)
-    FiFo.put(t20)
-    FiFo.put(t40)
-    for i in range(FiFo.qsize()):
-        FiFo.get().start()
-
-for i in range(20):
-    runExpirimentWithFiFo()
-    print(bacc_A,  bacc_B)
+#TODO: timestamps
+for i in range(10):
+    runExperimentWithFiFo()
