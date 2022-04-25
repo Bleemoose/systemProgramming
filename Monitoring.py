@@ -77,7 +77,7 @@ class Monitoring:
             print("Mode (most common value): " + str(statistics.mode(data)))
         except:
             print("A random value: " + str(random.choice(data)))
-        print("Standard Deviation: " + str(statistics.stdev(data)))
+        #print("Standard Deviation: " + str(statistics.stdev(data)))
 
     @staticmethod
     def load_monitoring(filepath):

@@ -1,4 +1,6 @@
+from random import random
 
+import Monitoring
 import concurrent.futures
 import requests
 import urllib.request
@@ -82,4 +84,11 @@ def multiproccessRun(N):
   print("Execution time: ", str((time.time() - start_time)))
 
 if __name__ == "__main__":
-  multiproccessRun(4)
+
+    mon_obj = Monitoring.VizualizeMonitoring([], [])
+    t1 = threading.Thread(target=mon_obj.monitor_cpu, args=(50,))
+    t2 = threading.Thread(target=mon_obj.monitor_ram, args=(50,))
+    t1.start()
+    t2.start()
+    multiproccessRun(1)
+    mon_obj()
