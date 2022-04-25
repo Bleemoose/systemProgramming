@@ -1,3 +1,5 @@
+
+import concurrent.futures
 import requests
 import urllib.request
 import time
@@ -59,19 +61,25 @@ def dumb_run():
 def myThread(i):
   print("%s : %s" % article_sentiment_analysis(i))
 
-def threads():
+def threads(N):
   mem = psutil.virtual_memory()
 
   print("Nuber of CPUs: ", psutil.cpu_count(), " Total physical memory", str(int(mem.total / 1024 ** 2)), "MB")
   start_time = time.time()
   threads = []
-  for i in range(100):
-    threads.append(threading.Thread(target=myThread, args=(i,)))
-    threads[i].start()
-  for i in range(100):
-    threads[i].join()
-
+  with concurrent.futures.ThreadPoolExecutor(N) as executor:
+    executor.map(myThread, range(100))
   print("Execution time: ", str((time.time() - start_time)))
 
 
-threads()
+
+def multiproccessRun(N):
+  mem = psutil.virtual_memory()
+  print("Nuber of CPUs: ", psutil.cpu_count(), " Total physical memory", str(int(mem.total / 1024 ** 2)), "MB")
+  start_time = time.time()
+  with concurrent.futures.ProcessPoolExecutor(N) as exe:
+    exe.map(myThread, range(100))
+  print("Execution time: ", str((time.time() - start_time)))
+
+if __name__ == "__main__":
+  multiproccessRun(4)
