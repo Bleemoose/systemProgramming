@@ -90,5 +90,5 @@ if __name__ == "__main__":
     t2 = threading.Thread(target=mon_obj.monitor_ram, args=(50,))
     t1.start()
     t2.start()
-    multiproccessRun(1)
+    threads(3)
     mon_obj()

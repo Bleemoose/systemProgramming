@@ -9,8 +9,7 @@ transferTypes = ["5", "10", "20", "40"]
 class Account:
     account_bacc_A, account_bacc_B = 100_000, 100_000
 
-
-
+#a lot of params for different types of testing
 def myThread(queue, bacc_A, bacc_B, uselock, useGlobals):
     while not queue.empty():
 
@@ -101,7 +100,7 @@ def runExperimentWithFiFo():
         q.put(transferTypes[i])
 
     for i in range(len(transferTypes)):
-        thread = threading.Thread(target=myThread, args=(q, global_bacc_A, global_bacc_B, False, True),)
+        thread = threading.Thread(target=myThread, args=(q, global_bacc_A, global_bacc_B, True, True),)
         thread.start()
         threads.append(thread)
     for thread in threads:
@@ -151,6 +150,7 @@ def classExp():
         threads.append(thread)
     print(account.account_bacc_A,account.account_bacc_B)
 
-#TODO: timestamps
-for i in range(10):
-    runExperimentWithFiFo()
+print("Class Variables Expiriment with no locks")
+for i in range(5):
+
+    classExp()
